@@ -1,0 +1,7 @@
+/* 原理：设置文字不换行，溢出后隐藏，截断显示省略符 */
+.ellipsis {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  width: 100%;
+}
