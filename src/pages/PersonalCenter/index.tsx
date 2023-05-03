@@ -1,7 +1,7 @@
 import { ProDescriptions } from '@ant-design/pro-components';
-import { Select } from 'antd';
+import { Select, Cascader, message } from 'antd';
+import axios from 'axios';
 import { useState, useEffect } from 'react';
-import request from 'umi-request';
 
 
 interface UserInfoType {
@@ -12,6 +12,7 @@ interface UserInfoType {
   major: string,
   college: string,
   alumniAssociationId: string,
+  alumniAssociationName: string,
   phone: string,
   address: string,
   employer: string,
@@ -21,6 +22,32 @@ interface UserInfoType {
   isTutor: number,
   createTime: string
 }
+
+interface Option {
+  value?: string | number | null;
+  label: React.ReactNode;
+  children?: Option[];
+  isLeaf?: boolean;
+  loading?: boolean;
+}
+
+const optionLists: Option[] = [
+  {
+    value: 0,
+    label: '院内',
+    isLeaf: false,
+  },
+  {
+    value: 1,
+    label: '省级',
+    isLeaf: false,
+  },
+  {
+    value: 2,
+    label: '国际',
+    isLeaf: false,
+  },
+];
 
 export default () => {
 
@@ -32,6 +59,7 @@ export default () => {
     major: '',
     college: '',
     alumniAssociationId: '',
+    alumniAssociationName: '',
     phone: '',
     address: '',
     employer: '',
@@ -41,49 +69,54 @@ export default () => {
     isTutor: 0,
     createTime: ''
   });
-  // const [columns, setColumns] = useState([]);
+  const [options, setOptions] = useState<Option[]>(optionLists);
 
+  const onChange = (value: (string | number)[], selectedOptions: Option[]) => {
+    console.log(value, selectedOptions);
+  };
+
+  const loadData = (selectedOptions: Option[]) => {
+    console.log(selectedOptions)
+    const targetOption = selectedOptions[selectedOptions.length - 1];
+    targetOption.loading = true;
+
+    axios.post('/alumni/list', { type: targetOption.value })
+      .then(res => {
+        targetOption.loading = false;
+        targetOption.children = res.data.alumniList.map((v:any) => ({...v, value: { id: v.id, name: v.name }, label: v.name}));
+        setOptions([...options]);
+      })
+  };
   useEffect(() => {
-    request.get('/api/getUserInfo').then(res => {
-      setData(res.data);
-    });
-    // request.post('/api/updateUserInfo').then(res => {
-    //   console.log(res)
-    // })
+    setData(JSON.parse(localStorage.getItem('userInfo') as string));
   }, []);
 
 
-  // function getColumsData(data:UserInfoType) {
-  //   const columns:any = [];
-  //   const hide = ['alumniAssociationId', 'id']
-  //   const notEditable = ['isManager']
-
-  //   for(const key in data) {
-  //     if (hide.includes(key)) {
-  //       continue;
-  //     }
-  //     columns.push({
-  //       title: '名字',
-  //       key: 'name',
-  //       dataIndex: 'name',
-  //       copyable: false,
-  //       ellipsis: true,
-  //     })
-  //   }
-
-  //   return columns;
-  // }
 
   return (
     <ProDescriptions
       bordered
       dataSource={data}
       editable={{
-        onSave: (key, record) => {
-          return new Promise((resolve) => {
-            console.log(key, record);
-            resolve(1);
-          })
+        onSave: async (key, record) => {
+          let newData:any = null;
+          if (key === 'alumniAssociationName') {
+            const end = record.alumniAssociationName.length;
+            if (end === 1) {
+              message.warn('请选择具体的校友会');
+              return false;
+            }
+            newData = {...data, alumniAssociationName: (record.alumniAssociationName as any)[1]['name'], alumniAssociationId: (record.alumniAssociationName as any)[1]['id']};
+          } else {
+            newData = {...data, ...record };
+          }
+          setData(newData);
+          axios.post('/user/update', { ...newData })
+            .then(res => {
+              localStorage.setItem('userInfo', JSON.stringify(newData));
+              message.success('保存成功');
+            })
+          console.log(key, record);
         }
       }}
       columns={[
@@ -180,7 +213,16 @@ export default () => {
           key: 'createTime',
           dataIndex: 'createTime',
           editable: false,
-        }
+        },
+        {
+          title: '校友会',
+          key: 'alumniAssociationName',
+          dataIndex: 'alumniAssociationName',
+          renderFormItem: () => {
+            return <Cascader options={options} loadData={loadData} onChange={onChange} changeOnSelect />;
+          }
+
+        },
       ]}
 
     >

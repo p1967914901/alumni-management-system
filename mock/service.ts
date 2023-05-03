@@ -10,7 +10,7 @@ Random.extend({
 
 export default {
   // 使用 mockjs 等三方库
-  'GET /api/getUserInfoList': mockjs.mock({
+  'GET /user/list': mockjs.mock({
     'status': 1,
     'data|100': [{
       'name': '@cname',
@@ -18,7 +18,8 @@ export default {
       'sex|1': [0, 1],
       'major|1': ['软件工程', '电子商务', '计算机科学与技术', '信息管理与工程'],
       'college|1': ['信息管理与人工智能学院', '财政税务学院', '会计学院', '经济学院', '外国语学院', '人文与传播学院', '创业学院', '公共管理学院', '金融学院', '法学院学院', '数据科学学院', '艺术学院', '马克思学院'],
-      'alumniAssociationId': '@id',
+      'alumniAssociationId': 0,
+      'alumniAssociationName': () => Random.province() + '校友会',
       'phone': '@phone',
       'address': '@county(true)',
       'employer|1': ['阿里', '网易', '百度', '腾讯', '字节'],
@@ -27,7 +28,8 @@ export default {
       'isManager|1': [0, 1, 2],
       'isTutor|1': [0, 1],
       'createTime': '@date("yyyy-MM-dd")',
-      'birthday': '@date("yyyy-MM-dd")'
+      'birthday': '@date("yyyy-MM-dd")',
+      'password': '123456'
     }],
     // 'data|100': [{ name: '@cname', 'id|1-10000': 50, 'type|1': ['奖学金', '助学金', '基础建设'], 'createTime': "@date('yyyy-MM-dd')", 'num|10000-99999999': 1 }],
   }),

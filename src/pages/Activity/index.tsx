@@ -1,11 +1,15 @@
 import { LikeOutlined, MessageOutlined, StarOutlined } from '@ant-design/icons';
 import { ProList, ModalForm, ProForm, ProFormText, ProFormTimePicker, ProFormDatePicker, ProFormDateTimePicker, ProFormDigit, ProFormTextArea, } from '@ant-design/pro-components';
 import { Button, Tag, Statistic, message } from 'antd';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from '../../utils/axios';
+import getTimeFormat from '@/utils/getTime';
+import { useModel } from 'umi';
 
 const { Countdown } = Statistic;
 
 interface ActivityItemType {
+  id: number;
   title: string,
   address: string,
   num: number,
@@ -14,126 +18,43 @@ interface ActivityItemType {
   fee: number,
   createTime: string,
   time: string,
-  remainder: number
+  remainder: number;
+  initiator: string, // 发起人名字
+  isRelease: number; // 是否发布
 }
 
-const dataSource = [
-  {
-    title: '语雀的天空',
-    address: '地址',
-    num: 30,
-    activityDetail: '活动详情',
-    endTime: '2023-09-01 14:00',
-    fee: 10000,
-    createTime: '2022-12-12',
-    time: '2024-01-01',
-    remainder: 10
-  },
-  {
-    title: 'Ant Design',
-    address: '地址',
-    num: 30,
-    activityDetail: '活动详情',
-    endTime: '2023-04-01 12:00:00',
-    fee: 10000,
-    createTime: '2022-12-12',
-    time: '2024-01-01',
-    remainder: 10
-
-  },
-  {
-    title: '蚂蚁金服体验科技',
-    address: '地址',
-    num: 30,
-    activityDetail: '活动详情',
-    endTime: '2023-05-01 12:00:15',
-    fee: 10000,
-    createTime: '2022-12-12',
-    time: '2024-01-01',
-    remainder: 10
-
-  },
-  {
-    title: 'TechUI',
-    address: '地址',
-    num: 30,
-    activityDetail: '活动详情',
-    endTime: '2023-05-13 12:13:13',
-    fee: 10000,
-    createTime: '2022-12-12',
-    time: '2024-01-01',
-    remainder: 0
-
-  },
-  {
-    title: '蚂蚁金服体验科技',
-    address: '地址',
-    num: 30,
-    activityDetail: '活动详情',
-    endTime: '2023-01-01',
-    fee: 10000,
-    createTime: '2022-12-12',
-    time: '2024-01-01',
-    remainder: 10
-  },
-  {
-    title: 'TechUI',
-    address: '地址',
-    num: 30,
-    activityDetail: '活动详情',
-    endTime: '2023-01-01',
-    fee: 10000,
-    createTime: '2022-12-12',
-    time: '2024-01-01',
-    remainder: 10
-
-  },
-  {
-    title: '蚂蚁金服体验科技',
-    address: '地址',
-    num: 30,
-    activityDetail: '活动详情',
-    endTime: '2023-01-01',
-    fee: 10000,
-    createTime: '2022-12-12',
-    time: '2024-01-01',
-    remainder: 10
-
-  },
-  {
-    title: 'TechUI',
-    address: '地址',
-    num: 30,
-    activityDetail: '活动详情',
-    endTime: '2023-01-01',
-    fee: 10000,
-    createTime: '2022-12-12',
-    time: '2024-01-01',
-    remainder: 10
-
-  },
-];
 
 export default () => {
+
+  const [dataSource, setDataSource] = useState<ActivityItemType[]>([]);
 
   const [modalVisit1, setModalVisit1] = useState(false);
   const [modalVisit2, setModalVisit2] = useState(false);
 
   const [activityDetail, setActivityDetail] = useState({
+    id: 9999,
     title: '',
     address: '',
     num: 0,
     activityDetail: '',
-    endTime: '',
+    endTime: getTimeFormat(),
     fee: 0,
-    createTime: '',
-    time: '',
-    remainder: 0
+    createTime: getTimeFormat(),
+    time: getTimeFormat(),
+    remainder: 0, // --
+    initiator: '', // ---
+    isRelease: 0,
   })
+
+  useEffect(() => {
+    axios.post('/activity/list', {}).then(res => {
+      setDataSource(res.data.activityList.sort((a:ActivityItemType, b:ActivityItemType) => b.id - a.id));
+    })
+  }, []);
 
   return (
     <>
-    <ProList<{ title: string }>
+    <ProList<ActivityItemType>
       toolBarRender={() => {
         return [
           <Button key="2" type="primary"
@@ -144,7 +65,7 @@ export default () => {
             }
           >
             我的报名
-          </Button>,
+          </Button>, localStorage.getItem('role') === '0' ? null :
           <Button key="3" type="primary"
             onClick={
               () => {
@@ -193,9 +114,11 @@ export default () => {
           render: (dom, entiy, index) => {
             return (
               <div>
-                段落示意：蚂蚁金服设计平台
-                design.alipay.com，用最小的工作量，无缝接入蚂蚁金服生态，提供跨越设计与开发的体验解决方案。蚂蚁金服设计平台
-                design.alipay.com，用最小的工作量，无缝接入蚂蚁金服生态提供跨越设计与开发的体验解决方案。
+                {
+                  entiy.activityDetail.split('\n').map((str:string, index:number) => (
+                    <div key={entiy.id + index} className={index === 2 ? 'ellipsis' : ''}>{str}</div>
+                  ))
+                }
               {/* <Countdown title="报名结束倒计时" value={dataSource[index]['time']} format="D 天 H 时 m 分 s 秒" /> */}
 
               </div>
@@ -221,7 +144,32 @@ export default () => {
       submitTimeout={2000}
       onFinish={async (values) => {
         console.log(values);
-        message.success('提交成功');
+        const newActivityInfo = {...values, initiator: JSON.parse(localStorage.getItem('userInfo') as string).name,
+        createTime: getTimeFormat(),
+        remainder: values.num,
+        isRelease: localStorage.getItem('role') === '1' ? 0 : 1
+      }
+        axios.post('/activity/insert', newActivityInfo).then(res => {
+          if (res.status === 200) {
+            // console.log('res', res)
+            setDataSource([newActivityInfo, ...dataSource])
+            message.success('提交成功');
+          }
+        })
+        setActivityDetail({
+          id: 999,
+          title: '',
+          address: '',
+          num: 0,
+          activityDetail: '',
+          endTime: getTimeFormat(),
+          fee: 0,
+          createTime: getTimeFormat(),
+          time: getTimeFormat(),
+          remainder: 0, // --
+          initiator: '', // ---
+          isRelease: 0,
+        })
         return true;
       }}
     >

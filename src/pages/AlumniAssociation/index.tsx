@@ -1,8 +1,9 @@
 import type { ProColumns } from '@ant-design/pro-components';
 import { EditableProTable } from '@ant-design/pro-components';
 import React, { useState, useEffect } from 'react';
-import { Select, Space, Input } from 'antd';
-import { request } from 'umi';
+import { Select, Space, Input, message } from 'antd';
+import axios from '../../utils/axios';
+
 
 const waitTime = (time: number = 100) => {
   return new Promise((resolve) => {
@@ -14,17 +15,12 @@ const waitTime = (time: number = 100) => {
 
 type AlumniAssociationItemType = {
   name: string;
-  id: string;
+  id: number;
   type: number;
   createTime: string;
   num: number;
 };
 
-const defaultData: AlumniAssociationItemType[] = [
-  {"name":"邵磊","id":"450000199608270434","type":1,"createTime":"1971-11-26","num":80503524},
-  {"name":"赵刚","id":"310000197507190152","type":0,"createTime":"2018-06-23","num":5573191},
-  {"name":"唐超","id":"640000198306079926","type":2,"createTime":"1982-05-08","num":6393220}
-];
 
 export default () => {
   const [editableKeys, setEditableRowKeys] = useState<React.Key[]>([]);
@@ -34,10 +30,12 @@ export default () => {
 
   const catList = ['院内', '省级', '国际'];
   useEffect(() => {
-    request('/api/getAlumniAssociationList').then(res => {
-      setData(res.data);
-      setCat('院内');
-    })
+    axios.post('/alumni/list', {})
+      .then(res => {
+        setData(res.data.alumniList.sort((a:AlumniAssociationItemType, b:AlumniAssociationItemType) => b.id - a.id));
+        setCat('院内');
+      })
+
   }, []);
 
   useEffect(() => {
@@ -55,9 +53,9 @@ export default () => {
         };
       },
       // 第一行不允许编辑
-      editable: (text, record, index) => {
-        return index !== 0;
-      },
+      // editable: (text, record, index) => {
+      //   return index !== 0;
+      // },
       // width: '15%',
     },
     {
@@ -87,8 +85,15 @@ export default () => {
         <a
           key="delete"
           onClick={() => {
-            setDataSource(dataSource.filter((item) => item.id !== record.id));
-            setData(data.filter((item) => item.id !== record.id));
+            axios.post('/alumni/delete', record)
+              .then(res => {
+                if (res.status === 200) {
+                  message.success('删除成功');
+                  setDataSource(dataSource.filter((item) => item.id !== record.id));
+                  setData(data.filter((item) => item.id !== record.id));
+                }
+              })
+
           }}
         >
           删除
@@ -112,7 +117,7 @@ export default () => {
         }}
         recordCreatorProps={{
           position: 'top',
-          record: () => ({name: '', id: '1', type: 0, createTime: '', num: 0}),
+          record: () => ({name: '', id: (dataSource[0]?.id||9999) + 1, type: 0, createTime: '', num: 0}),
           creatorButtonText: '新建校友会',
           style: {
             // display: 'none'
@@ -149,8 +154,21 @@ export default () => {
         editable={{
           type: 'single',
           editableKeys,
-          onSave: async (rowKey, data, row) => {
-            console.log(rowKey, data, row);
+          onSave: async (rowKey, record, row) => {
+            // console.log(rowKey, data, row);
+            axios.post('/alumni/insert', {
+              name: record.name,
+              type: record.type,
+              num: record.num,
+              createTime: record.createTime
+            }).then(res => {
+              if (res.status === 200) {
+                message.success('添加成功');
+                setDataSource([record, ...dataSource]);
+                setData([record, ...data]);
+
+              }
+            })
             await waitTime(2000);
           },
           onChange: setEditableRowKeys,

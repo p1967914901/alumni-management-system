@@ -64,9 +64,9 @@ export default (props:IRouteComponentProps) => {
 
   }, []);
 
-  // useEffect(() => {
-  //   localStorage.setItem('role', '2');
-  // })
+  useEffect(() => {
+    // localStorage.setItem('role', '2');
+  })
 
   const location = useLocation();
   if (location.pathname === '/login') {
@@ -80,6 +80,7 @@ export default (props:IRouteComponentProps) => {
       }}
     >
       <ProLayout
+      logo={false}
         token={{
           header: {
             colorBgHeader: '#292f33',

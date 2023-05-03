@@ -2,9 +2,7 @@ import { LikeOutlined, MessageOutlined, StarOutlined } from '@ant-design/icons';
 import { ProList } from '@ant-design/pro-components';
 import { Button, Tag } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { request } from 'umi';
-
-
+import axios from '../../utils/axios';
 
 
 interface dataItemType {
@@ -23,9 +21,10 @@ export default () => {
   const [dataSource, setDataSource] = useState<Array<dataItemType>>([]);
 
   useEffect(() => {
-    request('/api/getMienList').then(res => {
-      setDataSource(res.data);
-    })
+    axios.post('/style/list', {})
+      .then(res => {
+        setDataSource(res.data.newsList);
+      })
   }, []);
 
   return (
@@ -68,7 +67,7 @@ export default () => {
           render: (dom, entiy, index) => {
             return (
               <div>
-                {dataSource[index]['content'].repeat(10)}
+                {dataSource[index]['content']}
               </div>
             );
           },

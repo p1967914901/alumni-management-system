@@ -6,72 +6,9 @@ import { ProList, DrawerForm,
   ProFormText,} from '@ant-design/pro-components';
 import { Tag, message, Form, Button } from 'antd';
 import { useState, useEffect } from 'react';
+import axios from '../../utils/axios';
 
 import './index.css'
-
-const originData = [{
-  id: 'fsafsa',
-  headlines: "title1",
-  content: 'fsafasfdas \n 的萨顶顶仨看到阿双方承诺撒开心能看见阿森纳啊擦科斯基宁d\n风水布局饿啊空间看见按顺序啊说可能就啊身材局饿啊空间看见按顺序啊说可能就啊身材房贷首付多福多寿房贷首付水电费大发发发多大局饿啊空间看见按顺序啊说可能就啊身材房贷首付多福多寿房贷首付水电费大发发发多大局饿啊空间看见按顺序啊说可能就啊身材房贷首付多福多寿房贷首付水电费大发发发多大\nfdsafdasf sd f',
-  createTime: '2023-01-02',
-  tag: '文化校园',
-}, {
-  id: 'fsafsa',
-  headlines: "title1",
-  content: 'fsafasfdas\n的萨顶顶仨看到阿双方承诺撒开心能看见阿森纳啊擦科斯基宁d\n风水布局饿啊空间看见按顺序啊说可能就啊身材',
-  createTime: '2023-01-02',
-  tag: '文化校园',
-}, {
-  id: 'fsafsa',
-  headlines: "title1",
-  content: 'fsafasfdas\n的萨顶顶仨看到阿双方承诺撒开心能看见阿森纳啊擦科斯基宁d\n风水布局饿啊空间看见按顺序啊说可能就啊身材',
-  createTime: '2023-01-02',
-  tag: '文化校园',
-}, {
-  id: 'fsafsa',
-  headlines: "title1",
-  content: 'fsafasfdas\n的萨顶顶仨看到阿双方承诺撒开心能看见阿森纳啊擦科斯基宁d\n风水布局饿啊空间看见按顺序啊说可能就啊身材',
-  createTime: '2023-01-02',
-  tag: '文化校园',
-}, {
-  id: 'fsafsa',
-  headlines: "title1",
-  content: 'fsafasfdas\n的萨顶顶仨看到阿双方承诺撒开心能看见阿森纳啊擦科斯基宁d\n风水布局饿啊空间看见按顺序啊说可能就啊身材',
-  createTime: '2023-01-02',
-  tag: '学术科研',
-}, {
-  id: 'fsafsa',
-  headlines: "title1",
-  content: 'fsafasfdas\n的萨顶顶仨看到阿双方承诺撒开心能看见阿森纳啊擦科斯基宁d\n风水布局饿啊空间看见按顺序啊说可能就啊身材',
-  createTime: '2023-01-02',
-  tag: '学术科研',
-}, {
-  id: 'fsafsa',
-  headlines: "title1",
-  content: 'fsafasfdas\n的萨顶顶仨看到阿双方承诺撒开心能看见阿森纳啊擦科斯基宁d\n风水布局饿啊空间看见按顺序啊说可能就啊身材',
-  createTime: '2023-01-02',
-  tag: '学术科研',
-}, {
-  id: 'fsafsa',
-  headlines: "title1",
-  content: 'fsafasfdas\n的萨顶顶仨看到阿双方承诺撒开心能看见阿森纳啊擦科斯基宁d\n风水布局饿啊空间看见按顺序啊说可能就啊身材',
-  createTime: '2023-01-02',
-  tag: '学术科研',
-}, {
-  id: 'fsafsa',
-  headlines: "title1",
-  content: 'fsafasfdas\n的萨顶顶仨看到阿双方承诺撒开心能看见阿森纳啊擦科斯基宁d\n风水布局饿啊空间看见按顺序啊说可能就啊身材',
-  createTime: '2023-01-02',
-  tag: '学术科研',
-}, {
-  id: 'fsafsa',
-  headlines: "title1",
-  content: 'fsafasfdas\n的萨顶顶仨看到阿双方承诺撒开心能看见阿森纳啊擦科斯基宁d\n风水布局饿啊空间看见按顺序啊说可能就啊身材房贷首付多福多寿房贷首付水电费大发发发多大\n的萨放开那块',
-  createTime: '2023-01-02',
-  tag: '学术科研',
-}]
-
-
 
 interface NewsItemType {
   id: string,
@@ -82,6 +19,7 @@ interface NewsItemType {
 }
 
 export default () => {
+  const [originData, setOriginData] = useState<NewsItemType[]>([]);
   const [data, setData] = useState<any>([]);
   const [drawerVisit, setDrawerVisit] = useState(false);
   const [detailData, setDetailData] = useState<NewsItemType>({
@@ -93,7 +31,14 @@ export default () => {
   });
   const [index, setIndex] = useState(0);
   const [form] = Form.useForm<NewsItemType>();
+  const [action, setAction] = useState<'修改' | '添加'>('修改');
 
+  useEffect(() => {
+    axios.post('/news/list', {data: {}}).then(res => {
+      console.log(res.data)
+      setOriginData(res.data.newsList);
+    });
+  }, []);
 
   useEffect(() => {
     const data = originData.map((item) => ({
@@ -120,7 +65,7 @@ export default () => {
       ),
     }));
     setData(data);
-  }, []);
+  }, [originData]);
 
   const ghost = false;
   return (
@@ -132,6 +77,26 @@ export default () => {
       }}
     >
       <ProList<any>
+        toolBarRender={() => {
+          return [ localStorage.getItem('role') === '2' ?
+            <Button key="add" type="primary" onClick={
+              () => {
+                setAction('添加');
+                form.resetFields(['headlines', 'content', 'tag', 'createTime']);
+                setDetailData({
+                  id: '',
+                  headlines: '',
+                  content: '',
+                  createTime: '',
+                  tag: ''
+                });
+                setDrawerVisit(true);
+              }
+            }>
+              新建
+            </Button> : null,
+          ];
+        }}
         ghost={ghost}
         itemCardProps={{
           ghost,
@@ -146,7 +111,7 @@ export default () => {
         onItem={(record: any, index: number) => {
           return {
             onMouseEnter: () => {
-              console.log(record);
+              // console.log(record);
             },
             onClick: () => {
               setDrawerVisit(true);
@@ -154,6 +119,7 @@ export default () => {
               setDetailData(originData[index]);
               form.setFieldsValue(originData[index]);
               setIndex(index);
+              setAction('修改');
             },
 
           };
@@ -171,16 +137,16 @@ export default () => {
       />
       <DrawerForm disabled={false}
         onOpenChange={setDrawerVisit}
-        title='修改'
+        title={localStorage.getItem('role') === '2' ? action : '详情'}
         open={drawerVisit}
         submitter={{
           render: (props, defaultDoms) => {
-            return [
+            return [ localStorage.getItem('role') === '2' ?
               <Button type='primary'
                 key="reset"
                 onClick={() => {
                   // props.submit();
-                  form.resetFields(['headlines', 'content', 'tag']);
+                  form.resetFields(['headlines', 'content', 'tag', 'createTime']);
                   setDetailData({
                     id: '',
                     headlines: '',
@@ -191,39 +157,51 @@ export default () => {
                 }}
               >
                 重置
-              </Button>,
+              </Button> : null,
               ...defaultDoms,
             ];
           },
         }}
         onFinish={async () => {
-          // data =
-          // await setData
-          // message.success('提交成功');
-          // console.log('formData', formData)
-          // return true;
-          form.resetFields()
-          console.log(form.getFieldsValue(true))
-          console.log(form)
+          form.resetFields();
+          if (action === '修改') {
+            console.log({ ...detailData})
+            axios.post('/news/update', {
+              ...originData[index], ...detailData
+            }).then(res => {
+              originData[index] = detailData;
+              setOriginData([...originData])
+              message.success('修改成功');
+              setDrawerVisit(false);
+            });
+          } else {
+            axios.post('/news/insert', {
+              ...detailData
+            }).then(res => {
+              setOriginData([detailData, ...originData]);
+              message.success('添加成功');
+              setDrawerVisit(false);
+            });
+          }
         }}
       >
         <ProForm
           initialValues={{
             ...detailData,
-            // tag: {label: detailData['tag'], value: detailData['tag']}
+            tag: {label: detailData['tag'], value: detailData['tag']}
           }}
           // onChange={(e) => console.log(e)}
           onValuesChange={(_, values) => {
-            // console.log(values);
-            setDetailData(values as NewsItemType);
+            console.log(values);
+            setDetailData({...values, tag: ['string', 'undefined'].includes(typeof values['tag']) ? values['tag'] : (values['tag'] as any)['value']});
             // form.setFieldsValue(values);
           }}
           onFinish={async (value) => console.log(value)}
           form={form}
-
+          submitter={false}
         >
           <ProForm.Group>
-            <ProFormText
+            <ProFormText disabled={localStorage.getItem('role') !== '2'}
               width="md"
               name="headlines"
               label="标题"
@@ -233,7 +211,7 @@ export default () => {
 
             />
 
-            <ProFormSelect
+            <ProFormSelect disabled={localStorage.getItem('role') !== '2'}
               width="xs"
               fieldProps={{
                 labelInValue: true,
@@ -248,14 +226,14 @@ export default () => {
               label="标签"
               rules={[{ required: true, message: '请选择标签' }]}
             />
-            <ProFormDatePicker
+            <ProFormDatePicker disabled={localStorage.getItem('role') !== '2'}
               name="createTime"
               label="时间"
               rules={[{ required: true, message: '请选择时间' }]}
             />
 
           </ProForm.Group>
-          <ProFormTextArea
+          <ProFormTextArea disabled={localStorage.getItem('role') !== '2'}
             width="xl"
             label="内容"
             name="content"

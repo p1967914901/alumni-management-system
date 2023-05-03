@@ -22,10 +22,16 @@
   "dependencies": {
     "@ant-design/pro-components": "^2.4.4",
     "@ant-design/pro-layout": "^6.5.0",
+    "@types/axios": "^0.14.0",
     "@types/mockjs": "^1.0.7",
+    "@types/moment": "^2.13.0",
+    "@types/react-highlight-words": "^0.16.4",
+    "axios": "^1.4.0",
     "mockjs": "^1.1.0",
+    "moment": "^2.29.4",
     "react": "17.x",
     "react-dom": "17.x",
+    "react-highlight-words": "^0.20.0",
     "umi": "^3.5.40"
   },
   "devDependencies": {

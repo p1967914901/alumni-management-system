@@ -23,21 +23,17 @@ interface UserInfoType {
 export default function useAuthModel() {
   const [user, setUser] = useState<UserInfoType | null>(null);
 
-  const signin = useCallback((account, password) => {
-    request(`/login?userId=${account}&password=${password}`)
-      .then(res => {
-        setUser(res.data);
-      })
-  }, [])
+
 
   const signout = useCallback(() => {
     setUser(null);
     history.replace('/login');
+    localStorage.removeItem('role');
   }, [])
 
   return {
     user,
-    signin,
+    setUser,
     signout
   }
 }
