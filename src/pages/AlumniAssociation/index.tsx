@@ -102,6 +102,10 @@ export default () => {
     },
   ];
 
+  if (['0', '1'].includes(localStorage.getItem('role') as string)) {
+    columns.pop();
+  }
+
   return (
     <>
       <EditableProTable<AlumniAssociationItemType>
@@ -120,7 +124,7 @@ export default () => {
           record: () => ({name: '', id: (dataSource[0]?.id||9999) + 1, type: 0, createTime: '', num: 0}),
           creatorButtonText: '新建校友会',
           style: {
-            // display: 'none'
+            display: localStorage.getItem('role') === '2' ? 'block' : 'none'
           }
         }}
         loading={false}
