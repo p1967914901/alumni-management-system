@@ -201,7 +201,7 @@ export default () => {
           key: 'isManager',
           dataIndex: 'isManager',
           editable: false,
-          renderText: (text) => (text === 0 ? '校友' : (text === 1 ? '学校管理员' : '校友会管理员')),
+          renderText: (text) => (text === 0 ? '校友' : (text === 1 ? '校友会管理员' : '学校管理员')),
         },{
           title: '是否兼职导师',
           key: 'isTutor',
