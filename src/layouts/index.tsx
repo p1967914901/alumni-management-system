@@ -1,17 +1,8 @@
-import {
-  GithubFilled,
-  InfoCircleFilled,
-  PlusCircleFilled,
-  QuestionCircleFilled,
-  SearchOutlined,
-} from '@ant-design/icons';
-import type { ProSettings } from '@ant-design/pro-components';
 import { PageContainer, ProLayout } from '@ant-design/pro-components';
 import { useState, useEffect } from 'react';
 import defaultProps from './_defaultProps';
 import { IRouteComponentProps, history, useLocation } from 'umi';
-import request from 'umi-request';
-
+import { Button, message } from 'antd';
 
 interface UserInfoType {
   name: string,
@@ -83,9 +74,9 @@ export default (props:IRouteComponentProps) => {
       logo={false}
         token={{
           header: {
-            colorBgHeader: '#292f33',
-            colorHeaderTitle: '#fff',
-            colorTextMenu: '#dfdfdf',
+            colorBgHeader: '#f5f5f5', // #292f33
+            colorHeaderTitle: '#292f33',
+            colorTextMenu: '#292f33',
             colorTextMenuSecondary: '#dfdfdf',
             colorTextMenuSelected: '#fff',
             colorBgMenuItemSelected: '#22272b',
@@ -132,17 +123,16 @@ export default (props:IRouteComponentProps) => {
           type: 'group',
         }}
         avatarProps={{
-          src: 'https://gw.alipayobjects.com/zos/antfincdn/efFD%24IOql2/weixintupian_20170331104822.jpg',
-          size: 'small',
-          title: (
-            <div
-              style={{
-                color: '#dfdfdf',
-              }}
-            >
-              {data.name}
-            </div>
-          ),
+          render: () =>
+            <Button type="link" size={'large'} style={{color: '#292f33'}} onClick={
+              () => {
+                localStorage.clear();
+                history.push('/login');
+                message.success('您已退出登陆');
+              }
+            }>
+              退出登陆
+            </Button>
         }}
         menuFooterRender={(props) => {
           if (props?.collapsed) return undefined;
