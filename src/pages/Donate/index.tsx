@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Space, Table, Tag, Button, message } from 'antd';
+import { Space, Table, Tag, Button, message, Modal } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import axios from '../../utils/axios';
+import { ExclamationCircleFilled } from '@ant-design/icons';
+
 interface DataItemType {
   id: number,
   activityId: number;
@@ -19,10 +21,11 @@ const typeToColor = {
 }
 
 
-
+const { confirm } = Modal;
 
 export default () => {
   const [data, setData] = useState<Array<DataItemType>>([]);
+
 
   const columns: ColumnsType<DataItemType> = [
     {
@@ -56,13 +59,28 @@ export default () => {
           <a onClick={
             () => {
               // console.log((record as any))
-              axios.post('/activityReg/delete', record)
-                .then(res => {
-                  if (res.status === 200) {
-                    setData(data.filter(item => item.id !== record.id));
-                    message.success('删除成功');
-                  }
-                })
+              confirm({
+                title: '您确认要删除此记录吗？',
+                icon: <ExclamationCircleFilled />,
+                // content: 'Some descriptions',
+                okText: '确认',
+                okType: 'danger',
+                cancelText: '取消',
+                onOk() {
+                  axios.post('/activityReg/delete', record)
+                  .then(res => {
+                    if (res.status === 200) {
+                      setData(data.filter(item => item.id !== record.id));
+                      message.success('删除成功');
+                    }
+                  })
+                },
+                onCancel() {
+                  // console.log('Cancel');
+                  message.success('您已取消删除');
+                },
+              });
+
             }
           }>删除</a>
         </Space>
@@ -96,6 +114,15 @@ export default () => {
       >
         下载捐赠说明单
       </Button>
+      {localStorage.getItem('role') === '2' && <Button type="primary"
+        style={{
+          position: 'absolute',
+          top: 15,
+          right: 190
+        }}
+      >
+        新建
+      </Button>}
       <Table columns={columns} dataSource={data} />
     </>
   )

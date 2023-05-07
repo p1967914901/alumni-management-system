@@ -1,8 +1,10 @@
 import type { ProColumns } from '@ant-design/pro-components';
 import { EditableProTable } from '@ant-design/pro-components';
 import React, { useState, useEffect } from 'react';
-import { Select, Space, Input, message } from 'antd';
+import { Select, Space, Input, message, Modal } from 'antd';
 import axios from '../../utils/axios';
+import { ExclamationCircleFilled } from '@ant-design/icons';
+
 
 
 const waitTime = (time: number = 100) => {
@@ -85,14 +87,29 @@ export default () => {
         <a
           key="delete"
           onClick={() => {
-            axios.post('/alumni/delete', record)
-              .then(res => {
-                if (res.status === 200) {
-                  message.success('删除成功');
-                  setDataSource(dataSource.filter((item) => item.id !== record.id));
-                  setData(data.filter((item) => item.id !== record.id));
-                }
-              })
+            Modal.confirm({
+              title: '您确认要删除此记录吗？',
+              icon: <ExclamationCircleFilled />,
+              // content: 'Some descriptions',
+              okText: '确认',
+              okType: 'danger',
+              cancelText: '取消',
+              onOk() {
+                axios.post('/alumni/delete', record)
+                .then(res => {
+                  if (res.status === 200) {
+                    message.success('删除成功');
+                    setDataSource(dataSource.filter((item) => item.id !== record.id));
+                    setData(data.filter((item) => item.id !== record.id));
+                  }
+                })
+              },
+              onCancel() {
+                // console.log('Cancel');
+                message.success('您已取消删除');
+              },
+            });
+
 
           }}
         >
