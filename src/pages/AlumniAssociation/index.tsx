@@ -1,10 +1,11 @@
 import type { ProColumns } from '@ant-design/pro-components';
 import { EditableProTable } from '@ant-design/pro-components';
 import React, { useState, useEffect } from 'react';
-import { Select, Space, Input, message, Modal } from 'antd';
+import { Select, Space, Input, message, Modal, Button } from 'antd';
 import axios from '../../utils/axios';
 import { ExclamationCircleFilled } from '@ant-design/icons';
-
+import { ModalForm, ProForm, ProFormText, ProFormSelect, ProFormTextArea } from '@ant-design/pro-components';
+import getTimeFormat from '@/utils/getTime';
 
 
 const waitTime = (time: number = 100) => {
@@ -29,6 +30,14 @@ export default () => {
   const [dataSource, setDataSource] = useState<readonly AlumniAssociationItemType[]>([]);
   const [data, setData] = useState<readonly AlumniAssociationItemType[]>([]);
   const [cat, setCat] = useState('');
+  const [detail, setDetail] = useState<AlumniAssociationItemType>({
+    name: '',
+    id: 0,
+    type: 0,
+    createTime: getTimeFormat(),
+    num: 0
+  });
+  const [modalVisit, setModalVisit] = useState(false);
 
   const catList = ['院内', '省级', '国际'];
   useEffect(() => {
@@ -136,14 +145,6 @@ export default () => {
           defaultPageSize: 10,
           showSizeChanger: false,
         }}
-        recordCreatorProps={{
-          position: 'top',
-          record: () => ({name: '', id: (dataSource[0]?.id||9999) + 1, type: 0, createTime: '', num: 0}),
-          creatorButtonText: '新建校友会',
-          style: {
-            display: localStorage.getItem('role') === '2' ? 'block' : 'none'
-          }
-        }}
         loading={false}
         toolBarRender={() => [ //
           <Space.Compact>
@@ -195,6 +196,76 @@ export default () => {
           onChange: setEditableRowKeys,
         }}
       />
+      <ModalForm<AlumniAssociationItemType>
+        title="发起活动"
+        // form={form as any}
+        initialValues={{
+          ...detail
+        }}
+        autoFocusFirstInput
+        onOpenChange={setModalVisit}
+        open={modalVisit}
+        modalProps={{
+          destroyOnClose: true,
+          onCancel: () => console.log('run'),
+        }}
+
+        submitTimeout={2000}
+        onFinish={async (values) => {
+          console.log(values);
+          const newAlumni = {...values, type: (values.type as any).value, num: 0, createTime: getTimeFormat()}
+          axios.post('/alumni/insert', newAlumni).then(res => {
+            if (res.status === 200) {
+              // console.log('res', res)
+              setDataSource([newAlumni, ...dataSource])
+              message.success('提交成功');
+            }
+          })
+          setDetail({
+            id: 999,
+            num: 0,
+            createTime: getTimeFormat(),
+            name: '',
+            type: 0
+          })
+          return true;
+        }}
+      >
+        <ProForm.Group>
+          <ProFormText width="md" name="name" label="名称"
+            rules={[{ required: true, message: '请填写名称' }]}
+          />
+          <ProFormSelect
+            width="xs"
+            fieldProps={{
+              labelInValue: true,
+            }}
+            request={async () => [
+              { label: '院内', value: 0 },
+              { label: '省级', value: 1 },
+              { label: '国际', value: 2 },
+            ]}
+            name="type"
+            label="类型"
+            rules={[{ required: true, message: '请选择类型' }]}
+          />
+        </ProForm.Group>
+
+      </ModalForm>
+      {localStorage.getItem('role') === '2' && <Button type="primary"
+        style={{
+          position: 'absolute',
+          top: 87,
+          right: 100
+        }}
+        onClick={
+          () => {
+            setModalVisit(true);
+          }
+        }
+      >
+        新建
+      </Button>}
     </>
   );
 };
