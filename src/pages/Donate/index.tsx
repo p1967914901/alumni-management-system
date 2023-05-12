@@ -3,11 +3,10 @@ import { Space, Table, Tag, Button, message, Modal } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import axios from '../../utils/axios';
 import { ExclamationCircleFilled } from '@ant-design/icons';
-
+import { ModalForm, ProForm, ProFormText, ProFormDatePicker, ProFormDigit } from '@ant-design/pro-components';
+import getTimeFormat from '@/utils/getTime';
 interface DataItemType {
   id: number,
-  activityId: number;
-  userId: number;
   username: string;
   donationNum: number;
   createTime: string;
@@ -25,7 +24,15 @@ const { confirm } = Modal;
 
 export default () => {
   const [data, setData] = useState<Array<DataItemType>>([]);
-
+  const [detail, setDetail] = useState<DataItemType>({
+    username: '',
+    id: 9999,
+    donationNum: 0,
+    createTime: getTimeFormat(),
+    donationPurpose: ''
+  });
+  const [modalVisit, setModalVisit] = useState(false);
+  const [action, setAction] = useState<'新增' | '编辑'>('新增');
 
   const columns: ColumnsType<DataItemType> = [
     {
@@ -56,6 +63,16 @@ export default () => {
       key: 'action',
       render: (_, record) => (
         <Space size="middle">
+          <a onClick={
+            () => {
+              // console.log(record)
+              setDetail(record);
+              setAction('编辑');
+              setModalVisit(true);
+            }
+          }>
+            编辑
+          </a>
           <a onClick={
             () => {
               // console.log((record as any))
@@ -120,10 +137,80 @@ export default () => {
           top: 15,
           right: 190
         }}
+        onClick={
+          () => {
+            setModalVisit(true);
+            setAction('新增');
+          }
+        }
       >
         新建
       </Button>}
       <Table columns={columns} dataSource={data} />
+      <ModalForm<DataItemType>
+        title="发起活动"
+        // form={form as any}
+        initialValues={{
+          ...detail
+        }}
+        autoFocusFirstInput
+        onOpenChange={setModalVisit}
+        open={modalVisit}
+        modalProps={{
+          destroyOnClose: true,
+          onCancel: () => console.log('run'),
+        }}
+
+        submitTimeout={2000}
+        onFinish={async (values) => {
+          console.log(values);
+          // const newAlumni = {...values, type: (values.type as any).value, num: 0, createTime: getTimeFormat()}
+          if (action === '新增') {
+            axios.post('/activityReg/insert', values).then(res => {
+              if (res.status === 200) {
+                // console.log('res', res)
+                setData([values, ...data]);
+                message.success('提交成功');
+              }
+            })
+          } else {
+            console.log({...detail, values})
+            axios.post('/activityReg/update', {...detail, ...values}).then(res => {
+              if (res.status === 200) {
+                console.log('res', res)
+                // setData([values, ...data]);
+                setData(data.map((v => v.id === detail.id ? {...detail, ...values} : v)));
+                message.success('修改成功');
+              }
+            })
+          }
+
+          setDetail({
+            username: '',
+            id: 9999,
+            donationNum: 0,
+            createTime: getTimeFormat(),
+            donationPurpose: ''
+          })
+          return true;
+        }}
+      >
+        <ProForm.Group>
+          <ProFormText width="xs" name="username" label="捐赠人姓名"
+            rules={[{ required: true, message: '请填写捐赠人姓名' }]}
+          />
+          <ProFormText width="xs" name="donationPurpose" label="用途"
+            rules={[{ required: true, message: '请填写用途' }]}
+          />
+          <ProFormDigit label="捐赠金额" name="donationNum" width="xs" min={1}
+            rules={[{ required: true, message: '请填写捐赠金额' }]}
+          />
+          <ProFormDatePicker name="createTime" label="捐赠时间"
+          rules={[{ required: true, message: '请填写捐赠时间' }]}
+        />
+        </ProForm.Group>
+
+      </ModalForm>
     </>
   )
 };
