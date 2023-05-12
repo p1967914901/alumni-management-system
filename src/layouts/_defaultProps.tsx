@@ -40,11 +40,11 @@ export default {
         name: '个人中心',
         icon: <ChromeFilled />,
       },
-      {
-        path: '/setting',
-        name: '系统设置',
-        icon: <SettingFilled />,
-      },
+      // {
+      //   path: '/setting',
+      //   name: '系统设置',
+      //   icon: <SettingFilled />,
+      // },
     ],
   },
   location: {

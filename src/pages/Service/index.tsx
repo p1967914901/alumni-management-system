@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
-import { Space, Table, Tag, Input, Button, message } from 'antd';
+import { Space, Table, Tag, Input, Button, message, Badge } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import type { FilterConfirmProps } from 'antd/es/table/interface';
 import type { ColumnsType, ColumnType } from 'antd/es/table';
 import type { InputRef } from 'antd';
 import axios from '../../utils/axios';
 import Highlighter from 'react-highlight-words';
+import { NotificationOutlined } from '@ant-design/icons';
+
 
 
 interface UserInfoType {
@@ -152,7 +154,18 @@ export default () => {
       dataIndex: 'sex',
       key: 'sex',
       render: text => text === 1 ? '男' : '女',
-
+      filters: [
+        {
+          text: '男',
+          value: 1,
+        },
+        {
+          text: '女',
+          value: 0,
+        },
+      ],
+      filterSearch: true,
+      onFilter: (value, record) => record.sex === value,
     },
     {
       title: '专业',
@@ -207,13 +220,40 @@ export default () => {
       key: 'isManager',
       dataIndex: 'isManager',
       render: text => text === 0 ? '校友' : (text === 1 ? '校友会管理员' : '学校管理员'),
-      // ...getColumnSearchProps('email'),
+      filters: [
+        {
+          text: '学校管理员',
+          value: 2,
+        },
+        {
+          text: '校友会管理员',
+          value: 1,
+        },
+        {
+          text: '校友',
+          value: 0,
+        },
+      ],
+      filterSearch: true,
+      onFilter: (value, record) => record.isManager === value,
     },
     {
       title: '是否担任导师',
       key: 'isTutor',
       dataIndex: 'isTutor',
       render: text => text === 1 ? '是' : '否',
+      filters: [
+        {
+          text: '是',
+          value: 1,
+        },
+        {
+          text: '否',
+          value: 0,
+        },
+      ],
+      filterSearch: true,
+      onFilter: (value, record) => record.isTutor === value,
     },
     {
       title: '操作',
@@ -247,5 +287,39 @@ export default () => {
       })
   }, []);
 
-  return <Table columns={columns} dataSource={data} scroll={{ y: 540 }}/>
+  return (
+    <>
+      <Table columns={columns} dataSource={data} scroll={{ y: 540 }}/>
+      <div style={{
+          position: 'absolute',
+          top: 15,
+          right: 470
+        }}>
+        <Badge count={9} >
+          <Button type="primary" >校友卡申请列表</Button>
+        </Badge>
+      </div>
+      <Button type="primary" disabled={JSON.parse(localStorage.getItem('userInfo') as string)['isApply'] === 1 || JSON.parse(localStorage.getItem('userInfo') as string)['card']}
+        style={{
+          position: 'absolute',
+          top: 15,
+          right: 190
+        }}
+      >
+        {
+          JSON.parse(localStorage.getItem('userInfo') as string)['card'] ? '校友卡卡号：' + JSON.parse(localStorage.getItem('userInfo') as string)['card'] :
+          (JSON.parse(localStorage.getItem('userInfo') as string)['isApply'] === 1 ? '校友卡申请中' : '申请校友卡')
+        }
+      </Button>
+      <Button type="primary"
+        style={{
+          position: 'absolute',
+          top: 15,
+          right: 45
+        }}
+      >
+        下载导师申请表
+      </Button>
+    </>
+  )
 };
