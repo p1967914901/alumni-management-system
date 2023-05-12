@@ -7,6 +7,7 @@ import type { InputRef } from 'antd';
 import axios from '../../utils/axios';
 import Highlighter from 'react-highlight-words';
 import { NotificationOutlined } from '@ant-design/icons';
+import fileDownload from '@/utils/fileDownload';
 
 
 
@@ -317,6 +318,11 @@ export default () => {
           top: 15,
           right: 45
         }}
+        onClick={
+          () => {
+            fileDownload('tutor.doc');
+          }
+        }
       >
         下载导师申请表
       </Button>

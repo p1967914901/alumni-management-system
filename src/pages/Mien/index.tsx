@@ -3,6 +3,7 @@ import { ProList } from '@ant-design/pro-components';
 import { Button, Tag } from 'antd';
 import React, { useEffect, useState } from 'react';
 import axios from '../../utils/axios';
+import fileDownload from '@/utils/fileDownload';
 
 
 interface dataItemType {
@@ -31,7 +32,11 @@ export default () => {
     <ProList<{ title: string }>
       toolBarRender={() => {
         return [
-          <Button key="3" type="primary">
+          <Button key="3" type="primary" onClick={
+            () => {
+              fileDownload('evaluation.doc');
+            }
+          }>
             下载申请表
           </Button>,
         ];

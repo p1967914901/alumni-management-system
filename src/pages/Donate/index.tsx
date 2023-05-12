@@ -5,6 +5,7 @@ import axios from '../../utils/axios';
 import { ExclamationCircleFilled } from '@ant-design/icons';
 import { ModalForm, ProForm, ProFormText, ProFormDatePicker, ProFormDigit } from '@ant-design/pro-components';
 import getTimeFormat from '@/utils/getTime';
+import fileDownload from '@/utils/fileDownload';
 interface DataItemType {
   id: number,
   username: string;
@@ -128,6 +129,11 @@ export default () => {
           top: 15,
           right: 45
         }}
+        onClick={
+          () => {
+            fileDownload('donate.doc');
+          }
+        }
       >
         下载捐赠说明单
       </Button>
