@@ -8,11 +8,12 @@ import axios from '../../utils/axios';
 import Highlighter from 'react-highlight-words';
 import { NotificationOutlined } from '@ant-design/icons';
 import fileDownload from '@/utils/fileDownload';
-
+import { ModalForm, ProForm, ProFormText, ProFormSelect, ProFormTextArea } from '@ant-design/pro-components';
+import mockjs from 'mockjs';
 
 
 interface UserInfoType {
-  id: string;
+  id: number;
   name: string,
   userId: string,
   birthday: string,
@@ -28,6 +29,8 @@ interface UserInfoType {
   email: string,
   isManager: number,
   isTutor: number,
+  isApply: number,
+  card: string,
   createTime: string
 }
 
@@ -41,6 +44,9 @@ export default () => {
   const [searchedColumn, setSearchedColumn] = useState('');
   const searchInput = useRef<InputRef>(null);
   const [data, setData] = useState<Array<UserInfoType>>([]);
+  const [applyData, setApplyData] = useState<Array<UserInfoType>>([]);
+  const [modalVisit, setModalVisit] = useState(false);
+
 
   const handleSearch = (
     selectedKeys: string[],
@@ -141,6 +147,13 @@ export default () => {
       dataIndex: 'name',
       key: 'name',
       ...getColumnSearchProps('name'),
+      // render: (text) => <a>{text}</a>,
+    },
+    {
+      title: '用户名',
+      dataIndex: 'userId',
+      key: 'userId',
+      ...getColumnSearchProps('userId'),
       // render: (text) => <a>{text}</a>,
     },
     {
@@ -274,7 +287,44 @@ export default () => {
       ),
     },
   ];
-
+  const applyColumns: ColumnsType<UserInfoType> = [
+    {
+      title: '名字',
+      dataIndex: 'name',
+      key: 'name',
+      ...getColumnSearchProps('name'),
+      // render: (text) => <a>{text}</a>,
+    },
+    {
+      title: '用户名',
+      dataIndex: 'userId',
+      key: 'userId',
+      ...getColumnSearchProps('userId'),
+      // render: (text) => <a>{text}</a>,
+    },
+    {
+      title: '操作',
+      key: 'action',
+      render: (_, record) => (
+        <Space size="middle">
+          <a onClick={
+            () => {
+              console.log(record)
+              const info = {...record, isApply: 0, card: mockjs.Random.id()};
+              axios.post('/user/update', info)
+                .then(res => {
+                  message.success('成功通过');
+                  if (JSON.parse(localStorage.getItem('userInfo') as string)['id'] === info.id) {
+                    localStorage.setItem('userInfo', JSON.stringify(info));
+                  }
+                  setData(data.filter(item => item.id !== record.id));
+                })
+            }
+          }>同意</a>
+        </Space>
+      ),
+    },
+  ];
   const role = localStorage.getItem('role');
   if (role !== '2') {
     columns.pop();
@@ -288,6 +338,16 @@ export default () => {
       })
   }, []);
 
+  useEffect(() => {
+    const applyList = [];
+    for(const item of data) {
+      if (item.isApply) {
+        applyList.push(item);
+      }
+    }
+    setApplyData(applyList);
+  }, [data])
+
   return (
     <>
       <Table columns={columns} dataSource={data} scroll={{ y: 540 }}/>
@@ -296,23 +356,34 @@ export default () => {
           top: 15,
           right: 470
         }}>
-        <Badge count={9} >
-          <Button type="primary" >校友卡申请列表</Button>
+        <Badge count={applyData.length}>
+          <Button type="link" onClick={
+            () => {
+              setModalVisit(true);
+            }
+          }>校友卡申请列表</Button>
         </Badge>
       </div>
-      <Button type="primary" disabled={JSON.parse(localStorage.getItem('userInfo') as string)['isApply'] === 1 || JSON.parse(localStorage.getItem('userInfo') as string)['card']}
+      <Button type="link" disabled={JSON.parse(localStorage.getItem('userInfo') as string)['isApply'] === 1 || JSON.parse(localStorage.getItem('userInfo') as string)['card']}
         style={{
           position: 'absolute',
           top: 15,
           right: 190
-        }}
+        }} onClick={
+          async () => {
+            const info = {...JSON.parse(localStorage.getItem('userInfo') as string), isApply: 1}
+            const res = await axios.post('/user/update', info);
+            localStorage.setItem('userInfo', JSON.stringify(info));
+            setData(data.map(item => item.id === info.id ? info : item));
+          }
+        }
       >
         {
           JSON.parse(localStorage.getItem('userInfo') as string)['card'] ? '校友卡卡号：' + JSON.parse(localStorage.getItem('userInfo') as string)['card'] :
           (JSON.parse(localStorage.getItem('userInfo') as string)['isApply'] === 1 ? '校友卡申请中' : '申请校友卡')
         }
       </Button>
-      <Button type="primary"
+      <Button type="link"
         style={{
           position: 'absolute',
           top: 15,
@@ -326,6 +397,23 @@ export default () => {
       >
         下载导师申请表
       </Button>
+      <ModalForm
+        title="校友卡申请列表"
+        autoFocusFirstInput
+        onOpenChange={setModalVisit}
+        open={modalVisit}
+        modalProps={{
+          destroyOnClose: true,
+          onCancel: () => console.log('run'),
+        }}
+
+        submitTimeout={2000}
+        onFinish={async (values) => {
+          return true;
+        }}
+      >
+        <Table columns={applyColumns} dataSource={applyData} scroll={{ y: 340 }}/>
+      </ModalForm>
     </>
   )
 };
