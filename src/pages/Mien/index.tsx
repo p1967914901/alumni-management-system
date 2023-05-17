@@ -53,7 +53,7 @@ export default () => {
     <ProList<{ title: string }>
       toolBarRender={() => {
         return [
-          <Button type="link" onClick={
+          localStorage.getItem('role') === '2' && <Button type="link" onClick={
             async () => {
               setAction('新增');
               setDetailData({

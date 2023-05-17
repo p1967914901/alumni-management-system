@@ -79,7 +79,7 @@ export default () => {
       <ProList<any>
         toolBarRender={() => {
           return [ localStorage.getItem('role') === '2' ?
-            <Button key="add" type="primary" onClick={
+            <Button key="add" type="link" onClick={
               () => {
                 setAction('添加');
                 form.resetFields(['headlines', 'content', 'tag', 'createTime']);

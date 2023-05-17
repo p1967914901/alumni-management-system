@@ -116,14 +116,15 @@ export default () => {
     axios.post('/activityReg/list', {})
       .then(res => {
         if (res.status === 200) {
-          setData(res.data.activityRegList.sort((a:DataItemType, b:DataItemType) => b.id - a.id));
+          console.log(res.data.activityRegList.filter((item:any) => Object.is(item.userId, null)).sort((a:DataItemType, b:DataItemType) => b.id - a.id))
+          setData(res.data.activityRegList.filter((item:any) => !item.userId).sort((a:DataItemType, b:DataItemType) => b.id - a.id));
         }
       })
   }, []);
 
   return (
     <>
-      <Button type="primary"
+      <Button type="link"
         style={{
           position: 'absolute',
           top: 15,

@@ -351,7 +351,7 @@ export default () => {
   return (
     <>
       <Table columns={columns} dataSource={data} scroll={{ y: 540 }}/>
-      <div style={{
+      {localStorage.getItem('role') === '2' && <div style={{
           position: 'absolute',
           top: 15,
           right: 470
@@ -363,7 +363,7 @@ export default () => {
             }
           }>校友卡申请列表</Button>
         </Badge>
-      </div>
+      </div>}
       <Button type="link" disabled={JSON.parse(localStorage.getItem('userInfo') as string)['isApply'] === 1 || JSON.parse(localStorage.getItem('userInfo') as string)['card']}
         style={{
           position: 'absolute',

@@ -252,7 +252,7 @@ export default () => {
         </ProForm.Group>
 
       </ModalForm>
-      {localStorage.getItem('role') === '2' && <Button type="primary"
+      {localStorage.getItem('role') === '2' && <Button type="link"
         style={{
           position: 'absolute',
           top: 87,
