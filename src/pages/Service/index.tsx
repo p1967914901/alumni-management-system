@@ -1,16 +1,17 @@
 import { useState, useEffect, useRef } from 'react';
-import { Space, Table, Tag, Input, Button, message, Badge } from 'antd';
+import { Space, Table, Tag, Input, Button, message, Badge, Modal } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import type { FilterConfirmProps } from 'antd/es/table/interface';
 import type { ColumnsType, ColumnType } from 'antd/es/table';
 import type { InputRef } from 'antd';
 import axios from '../../utils/axios';
 import Highlighter from 'react-highlight-words';
-import { NotificationOutlined } from '@ant-design/icons';
+import { ExclamationCircleFilled } from '@ant-design/icons';
 import fileDownload from '@/utils/fileDownload';
 import { ModalForm, ProForm, ProFormText, ProFormSelect, ProFormTextArea } from '@ant-design/pro-components';
 import mockjs from 'mockjs';
 
+const { confirm } = Modal;
 
 interface UserInfoType {
   id: number;
@@ -276,11 +277,27 @@ export default () => {
         <Space size="middle">
           <a onClick={
             () => {
-              axios.post('/user/delete', {...record})
-                .then(res => {
-                  message.success('删除成功');
-                  setData(data.filter(item => item.id !== record.id));
-                })
+              confirm({
+                title: '您确认要删除此记录吗？',
+                icon: <ExclamationCircleFilled />,
+                // content: 'Some descriptions',
+                okText: '确认',
+                okType: 'danger',
+                cancelText: '取消',
+                onOk() {
+                  axios.post('/user/delete', record)
+                  .then(res => {
+                    if (res.status === 200) {
+                      setData(data.filter(item => item.id !== record.id));
+                      message.success('删除成功');
+                    }
+                  })
+                },
+                onCancel() {
+                  // console.log('Cancel');
+                  message.success('您已取消删除');
+                },
+              });
             }
           }>删除</a>
         </Space>
