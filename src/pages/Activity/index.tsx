@@ -342,7 +342,7 @@ export default () => {
                 }} onClick={
                   async () => {
                     console.log(entiy)
-                    const res = await axios.post('/activityReg/delete', {
+                    const res = await axios.post('/activityReg/cancel', {
                       activityId: entiy.id, userId: JSON.parse(localStorage.getItem('userInfo') as string)['id'],
                       name: JSON.parse(localStorage.getItem('userInfo') as string)['name'],
                     });
