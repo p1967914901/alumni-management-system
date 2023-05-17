@@ -180,6 +180,7 @@ export default () => {
                       if (res.status === 200) {
                         message.success('报名成功');
                         setIdParticipated([entiy.id, ...idParticipated]);
+                        setDataParticipated([entiy, ...dataParticipated]);
                       }
                     }
                   }
