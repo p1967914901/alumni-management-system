@@ -138,7 +138,7 @@ export default () => {
       >
         下载捐赠说明单
       </Button>
-      {localStorage.getItem('role') === '2' && <Button type="primary"
+      {localStorage.getItem('role') === '2' && <Button type="link"
         style={{
           position: 'absolute',
           top: 15,
