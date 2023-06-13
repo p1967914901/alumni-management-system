@@ -4,7 +4,7 @@ import { ProList, DrawerForm,
   ProForm,
   ProFormDigit,
   ProFormSelect,
-  ProFormText } from '@ant-design/pro-components';
+  ProFormText, ModalForm } from '@ant-design/pro-components';
 import { Button, Tag, Form, message, Modal } from 'antd';
 import React, { useEffect, useState } from 'react';
 import axios from '../../utils/axios';
@@ -40,6 +40,7 @@ export default () => {
   });
   const [form] = Form.useForm<dataItemType>();
   const [action, setAction] = useState<'编辑' | '新增'>('编辑');
+  const [modalVisit1, setModalVisit1] = useState(false);
 
   useEffect(() => {
     axios.post('/style/list', {})
@@ -74,10 +75,12 @@ export default () => {
           </Button>,
           <Button type="link" onClick={
             () => {
-              fileDownload('evaluation.doc');
+              // fileDownload('evaluation.doc');
+            setModalVisit1(true)
+
             }
           }>
-            下载申请表
+            申请年度校友
           </Button>,
         ];
       }}
@@ -278,6 +281,89 @@ export default () => {
 
         </ProForm>
       </DrawerForm>
+      <ModalForm
+        title="校友评选申请表"
+        // form={form as any}
+        initialValues={{
+          // ...detail
+        }}
+        autoFocusFirstInput
+        onOpenChange={setModalVisit1}
+        // open={true}
+        open={modalVisit1}
+        modalProps={{
+          destroyOnClose: true,
+          onCancel: () => console.log('run'),
+        }}
+
+        submitTimeout={2000}
+        onFinish={async (values) => {
+
+          return true;
+        }}
+      >
+        <ProForm.Group>
+          <ProFormText width="sm" name="username" label="学号" rules={[{ required: true, message: '请填写用途' }]}/>
+          <ProFormText width="xs" name="username" label="姓名"
+            rules={[{ required: true, message: '请填写姓名' }]}
+          />
+          <ProFormText width="xs" name="username" label="性别" rules={[{ required: true, message: '请填写用途' }]}/>
+          <ProFormText width="sm" name="username" label="学院" rules={[{ required: true, message: '请填写用途' }]}/>
+          <ProFormText width="xs" name="username" label="班级" rules={[{ required: true, message: '请填写用途' }]}/>
+          <ProFormText width="xs" name="username" label="专业" rules={[{ required: true, message: '请填写用途' }]}/>
+
+          {/* <ProFormText width="xs" name="donationPurpose" label="用途"
+            rules={[{ required: true, message: '请填写用途' }]}
+
+          />
+          <ProFormText width='sm' name="username" label="联系电话" rules={[{ required: true, message: '请填写用途' }]}/>
+
+          <ProFormDigit label="捐赠金额" name="donationNum" width="xs" min={1}
+            rules={[{ required: true, message: '请填写捐赠金额' }]}
+          /> */}
+          {/* <ProFormDatePicker name="createTime" label="捐赠时间"
+          rules={[{ required: true, message: '请填写捐赠时间' }]}
+        /> */}
+          {/* <ProFormText width='sm' name="username" label="捐赠方式" rules={[{ required: true, message: '请填写用途' }]}/> */}
+          <ProFormTextArea
+          width="xl"
+          label="符合条件情况"
+          name="activityDetail"
+          fieldProps={{
+            autoSize: true
+          }}
+          rules={[{ required: true, message: '请填写活动详情' }]}
+        />
+        <ProFormTextArea
+          width="xl"
+          label="个人小结"
+          name="activityDetail"
+          fieldProps={{
+            autoSize: true
+          }}
+          rules={[{ required: true, message: '请填写活动详情' }]}
+        />
+        <ProFormTextArea
+          width="xl"
+          label="备注"
+          name="activityDetail"
+          fieldProps={{
+            autoSize: true
+          }}
+          // rules={[{ required: true, message: '请填写活动详情' }]}
+        />
+        {/* <ProFormTextArea
+          width="xl"
+          label=""
+          name="activityDetail"
+          fieldProps={{
+            autoSize: true
+          }}
+          // rules={[{ required: true, message: '请填写活动详情' }]}
+        /> */}
+        </ProForm.Group>
+
+      </ModalForm>
       </>
   );
 };

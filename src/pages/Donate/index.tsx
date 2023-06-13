@@ -3,7 +3,7 @@ import { Space, Table, Tag, Button, message, Modal } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import axios from '../../utils/axios';
 import { ExclamationCircleFilled } from '@ant-design/icons';
-import { ModalForm, ProForm, ProFormText, ProFormDatePicker, ProFormDigit } from '@ant-design/pro-components';
+import { ModalForm, ProForm, ProFormText, ProFormDatePicker, ProFormDigit, ProFormTextArea } from '@ant-design/pro-components';
 import getTimeFormat from '@/utils/getTime';
 import fileDownload from '@/utils/fileDownload';
 interface DataItemType {
@@ -34,6 +34,7 @@ export default () => {
   });
   const [modalVisit, setModalVisit] = useState(false);
   const [action, setAction] = useState<'新增' | '编辑'>('新增');
+  const [modalVisit1, setModalVisit1] = useState(false);
 
   const columns: ColumnsType<DataItemType> = [
     {
@@ -132,11 +133,12 @@ export default () => {
         }}
         onClick={
           () => {
-            fileDownload('donate.doc');
+            // fileDownload('donate.doc');
+            setModalVisit1(true)
           }
         }
       >
-        下载捐赠说明单
+        发起捐赠
       </Button>
       {localStorage.getItem('role') === '2' && <Button type="link"
         style={{
@@ -214,6 +216,62 @@ export default () => {
           />
           <ProFormDatePicker name="createTime" label="捐赠时间"
           rules={[{ required: true, message: '请填写捐赠时间' }]}
+        />
+        </ProForm.Group>
+
+      </ModalForm>
+      <ModalForm<DataItemType>
+        title="发起捐赠"
+        // form={form as any}
+        initialValues={{
+          // ...detail
+        }}
+        autoFocusFirstInput
+        onOpenChange={setModalVisit1}
+        // open={true}
+        open={modalVisit1}
+        modalProps={{
+          destroyOnClose: true,
+          onCancel: () => console.log('run'),
+        }}
+
+        submitTimeout={2000}
+        onFinish={async (values) => {
+
+          return true;
+        }}
+      >
+        <ProForm.Group>
+          <ProFormText width="sm" name="username" label="捐赠人学号" rules={[{ required: true, message: '请填写用途' }]}/>
+          <ProFormText width="xs" name="username" label="捐赠人姓名"
+            rules={[{ required: true, message: '请填写捐赠人姓名' }]}
+          />
+          <ProFormText width="xs" name="username" label="性别" rules={[{ required: true, message: '请填写用途' }]}/>
+          <ProFormText width="sm" name="username" label="学院" rules={[{ required: true, message: '请填写用途' }]}/>
+          <ProFormText width="xs" name="username" label="班级" rules={[{ required: true, message: '请填写用途' }]}/>
+          <ProFormText width="xs" name="username" label="专业" rules={[{ required: true, message: '请填写用途' }]}/>
+
+          <ProFormText width="xs" name="donationPurpose" label="用途"
+            rules={[{ required: true, message: '请填写用途' }]}
+
+          />
+          <ProFormText width='sm' name="username" label="联系电话" rules={[{ required: true, message: '请填写用途' }]}/>
+
+          <ProFormDigit label="捐赠金额" name="donationNum" width="xs" min={1}
+            rules={[{ required: true, message: '请填写捐赠金额' }]}
+          />
+          <ProFormDatePicker name="createTime" label="捐赠时间"
+          rules={[{ required: true, message: '请填写捐赠时间' }]}
+        />
+          <ProFormText width='sm' name="username" label="捐赠方式" rules={[{ required: true, message: '请填写用途' }]}/>
+          <ProFormTextArea
+          width="xl"
+          label="备注"
+          name="activityDetail"
+          fieldProps={{
+            autoSize: true
+          }}
+          // rules={[{ required: true, message: '请填写活动详情' }]}
         />
         </ProForm.Group>
 

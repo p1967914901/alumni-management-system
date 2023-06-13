@@ -47,6 +47,7 @@ export default () => {
   const [data, setData] = useState<Array<UserInfoType>>([]);
   const [applyData, setApplyData] = useState<Array<UserInfoType>>([]);
   const [modalVisit, setModalVisit] = useState(false);
+  const [modalVisit1, setModalVisit1] = useState(false);
 
 
   const handleSearch = (
@@ -408,11 +409,13 @@ export default () => {
         }}
         onClick={
           () => {
-            fileDownload('tutor.doc');
+            // fileDownload('tutor.doc');
+            setModalVisit1(true)
+
           }
         }
       >
-        下载导师申请表
+        导师申请
       </Button>
       <ModalForm
         title="校友卡申请列表"
@@ -430,6 +433,98 @@ export default () => {
         }}
       >
         <Table columns={applyColumns} dataSource={applyData} scroll={{ y: 340 }}/>
+      </ModalForm>
+      <ModalForm
+        title="兼职导师申请表"
+        // form={form as any}
+        initialValues={{
+          // ...detail
+        }}
+        autoFocusFirstInput
+        onOpenChange={setModalVisit1}
+        // open={true}
+        open={modalVisit1}
+        modalProps={{
+          destroyOnClose: true,
+          onCancel: () => console.log('run'),
+        }}
+
+        submitTimeout={2000}
+        onFinish={async (values) => {
+
+          return true;
+        }}
+      >
+        <ProForm.Group>
+          <ProFormText width="sm" name="username" label="学号" rules={[{ required: true, message: '请填写用途' }]}/>
+          <ProFormText width="xs" name="username" label="姓名"
+            rules={[{ required: true, message: '请填写姓名' }]}
+          />
+          <ProFormText width="xs" name="username" label="性别" rules={[{ required: true, message: '请填写用途' }]}/>
+          <ProFormText width="xs" name="username" label="学历" rules={[{ required: true, message: '请填写用途' }]}/>
+          <ProFormText width="sm" name="username" label="联系方式" rules={[{ required: true, message: '请填写用途' }]}/>
+          <ProFormText width="sm" name="username" label="工作单位" rules={[{ required: true, message: '请填写用途' }]}/>
+
+          {/* <ProFormText width="xs" name="donationPurpose" label="用途"
+            rules={[{ required: true, message: '请填写用途' }]}
+
+          />
+          <ProFormText width='sm' name="username" label="联系电话" rules={[{ required: true, message: '请填写用途' }]}/>
+
+          <ProFormDigit label="捐赠金额" name="donationNum" width="xs" min={1}
+            rules={[{ required: true, message: '请填写捐赠金额' }]}
+          /> */}
+          {/* <ProFormDatePicker name="createTime" label="捐赠时间"
+          rules={[{ required: true, message: '请填写捐赠时间' }]}
+        /> */}
+          {/* <ProFormText width='sm' name="username" label="捐赠方式" rules={[{ required: true, message: '请填写用途' }]}/> */}
+          <ProFormTextArea
+          width="xl"
+          label="工作经历"
+          name="activityDetail"
+          fieldProps={{
+            autoSize: true
+          }}
+          rules={[{ required: true, message: '请填写活动详情' }]}
+        />
+        <ProFormTextArea
+          width="xl"
+          label="个人成果"
+          name="activityDetail"
+          fieldProps={{
+            autoSize: true
+          }}
+          rules={[{ required: true, message: '请填写活动详情' }]}
+        />
+        <ProFormTextArea
+          width="xl"
+          label="个人小结"
+          name="activityDetail"
+          fieldProps={{
+            autoSize: true
+          }}
+          rules={[{ required: true, message: '请填写活动详情' }]}
+        />
+        <ProFormTextArea
+          width="xl"
+          label="备注"
+          name="activityDetail"
+          fieldProps={{
+            autoSize: true
+          }}
+          // rules={[{ required: true, message: '请填写活动详情' }]}
+        />
+        {/* <ProFormTextArea
+          width="xl"
+          label=""
+          name="activityDetail"
+          fieldProps={{
+            autoSize: true
+          }}
+          // rules={[{ required: true, message: '请填写活动详情' }]}
+        /> */}
+        </ProForm.Group>
+
       </ModalForm>
     </>
   )
